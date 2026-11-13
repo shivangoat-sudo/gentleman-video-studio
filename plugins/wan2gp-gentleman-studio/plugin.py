@@ -78,7 +78,11 @@ def split_into_scenes(script: str, total_seconds: int) -> list[str]:
     if not sentences:
         sentences = [source]
     target_count = max(1, math.ceil(total_seconds / 6.5))
-    count = min(target_count, len(sentences))
+    if len(sentences) < target_count:
+        words_in_script = source.split()
+        chunk_size = max(1, math.ceil(len(words_in_script) / target_count))
+        return [" ".join(words_in_script[i:i + chunk_size]) for i in range(0, len(words_in_script), chunk_size)]
+    count = target_count
     if count == 1:
         return [source]
     groups = []
