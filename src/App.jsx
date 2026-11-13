@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Aperture, ArrowUpRight, AudioLines, Check, ChevronDown, Clapperboard, Film, ImagePlus, Layers3, LoaderCircle, LockKeyhole, Music2, Plus, Settings2, ShieldCheck, Sparkles, Upload, Youtube, X } from "lucide-react";
+import { Aperture, ArrowUpRight, AudioLines, Check, ChevronDown, Clapperboard, Film, ImagePlus, Layers3, LoaderCircle, LockKeyhole, Music2, MonitorPlay, Plus, Settings2, ShieldCheck, Sparkles, Upload, Youtube, X } from "lucide-react";
 
 const styles = [
   ["Photorealistic", "Natural live-action footage"],
