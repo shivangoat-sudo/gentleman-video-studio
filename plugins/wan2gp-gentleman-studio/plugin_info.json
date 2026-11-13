@@ -1,0 +1,13 @@
+{
+  "name": "Gentleman Studio",
+  "author": "Private integration",
+  "version": "0.1.0",
+  "description": "Private script-to-video controls for the How to Become a Gentleman series.",
+  "type": "app",
+  "important": false,
+  "info_card": {
+    "tagline": "Turn a script into a cinematic short",
+    "description": "Choose language, duration, theme, aspect ratio, resolution and upload a script.",
+    "details": "Uses the WanGP generation engine. GPU and model weights required."
+  }
+}
