@@ -1,76 +1,61 @@
 # Gentleman Video Studio
 
-A private, script-driven video-production interface for the 90-day **How to Become a Gentleman** series.
+A private web application for creating AI videos with open video models, designed around WanGP as the generation engine.
 
-**Private repository:** this repository is private under the connected GitHub account. No collaborators were added.
+## Project status
 
-## Engine choice
+The repository now includes a conventional **Vite + React web application** at its root. This makes it a recognizable web-app project for Google AI Studio and Netlify, while preserving the existing WanGP plugin integration under `plugins/`.
 
-This project integrates with [WanGP](https://github.com/deepbeepmeep/WanGP), an open-source local video-generation application with a browser UI, multiple video model families, and a built-in Showrunner for longer multi-shot productions.
+**Important:** the current web interface is a frontend shell. Video generation, authentication, private GPU-worker connection and YouTube OAuth are not yet enabled. The API deliberately returns a clear 503 response until those systems are implemented. Do not deploy this publicly as a private service until authentication is configured.
 
-This repository is a separate integration/plugin. It does not contain a copy of WanGP's source code. WanGP is downloaded from its official repository when you set up the runtime. WanGP has its own Community License 2.0; model weights and dependencies retain their own licenses. Read the upstream license before use.
+## Web app controls
 
-## Controls in Gentleman Studio
+- Prompt and optional script
+- Script file selection: TXT, Markdown, SRT, DOCX or PDF
+- Language: English, Dutch, Spanish, French or German
+- Duration: 10–300 seconds
+- Aspect ratio: 9:16, 16:9, 1:1 or 4:3
+- Resolution: 480p, 720p or 1080p
+- Visual styles: Photorealistic, Cinematic, Old Money, Documentary, Commercial, Modern Minimal, Anime or Custom
+- Optional voice-over, captions and music
+- Optional start and end reference images
+- Planned video library and YouTube channel sections
 
-- Language: English, Dutch, Spanish, French or German.
-- Target duration: 5–120 seconds.
-- Theme: Cinematic Gentleman, Old Money, Modern Minimal, Urban Discipline or Custom.
-- Aspect ratio: 9:16, 16:9, 1:1 or 4:3.
-- Resolution: 480p, 720p or 1080p.
-- Script: paste text or upload TXT, Markdown, SRT, DOCX or PDF.
-- Video model: choose from text-to-video models available in the installed WanGP runtime.
-- Optional spoken narration: Edge TTS, with language-matched voice.
-- Captions: an SRT subtitle track is added to the final MP4.
+## Run locally
 
-The plugin splits the script into visual beats, asks WanGP to render each shot, then joins the shots and adds captions. It uses photorealistic live-action prompting and avoids stock-image slideshows.
-
-## Important limitations of this first build
-
-- This is a first functional integration, not a fully tested production release. It must be tested on a GPU runtime before relying on it.
-- WanGP still needs a supported GPU and the chosen model's weights. A GitHub repository cannot provide free GPU compute.
-- Edge TTS is an online speech service. When narration is enabled, the script text is sent to Microsoft's speech endpoint. Turn narration off if the script must remain local.
-- The first version creates a sequence of separate generated shots; it does not yet guarantee the same actor/face/outfit across every shot. For stronger character continuity and director-led planning, use WanGP's built-in Showrunner.
-- Exact runtime can vary slightly by the selected model's supported frame steps.
-- No video is uploaded to YouTube automatically.
-
-## Install in Google Colab
-
-1. Open this private repository while signed in to GitHub.
-2. Select **Code → Download ZIP**.
-3. In a new Google Colab notebook, upload and extract the ZIP, or clone this repository using your own GitHub authentication.
-4. Run:
+Requires Node.js 20 or newer.
 
 ```bash
-git clone --depth 1 https://github.com/deepbeepmeep/WanGP.git /content/WanGP
-bash /content/gentleman-video-studio/scripts/install_colab.sh /content/WanGP
+npm install
+npm run dev
 ```
 
-If you extracted the ZIP to a different folder, replace `/content/gentleman-video-studio` with that folder.
-
-5. Install WanGP according to its official Colab/GPU installation instructions. Then start it from the WanGP folder:
+Build for Netlify:
 
 ```bash
-cd /content/WanGP
-python wgp.py --listen --server-port 7860 --profile 4
+npm run build
 ```
 
-6. Open WanGP in the Colab port preview. Do not use a public Gradio share link for private work. Keep the Colab notebook and runtime private to your account.
+Netlify publishes the `dist` directory. See `netlify.toml`.
 
-After startup, enable **Gentleman Studio** in **Apps & PlugIn Manager** if it is not already enabled.
+## Architecture
 
-## Output
+- Frontend: Vite + React
+- Hosting: Netlify
+- Generation engine: WanGP on a separate GPU runtime (not Netlify)
+- Backend control plane: Netlify Functions
+- YouTube: Google OAuth + YouTube Data API, to be implemented
 
-Generated files are saved under:
+A GitHub repository or Netlify website cannot provide free GPU compute. Free GPU availability is not guaranteed. No paid generation API is part of the design.
 
-`WanGP/outputs/gentleman_studio/`
+## Existing WanGP integration
 
-The MP4 has a companion JSON file with the selected settings and original script.
+The independent WanGP plugin remains under `plugins/wan2gp-gentleman-studio/`. It is a prototype and has not yet passed an end-to-end GPU render test. See `docs/ROADMAP.md` and `docs/WEB-APP-PLAN.md`.
 
-## Upstream references
+## Privacy and security
 
-- WanGP source: https://github.com/deepbeepmeep/WanGP
-- WanGP plugin guide: https://github.com/deepbeepmeep/WanGP/blob/main/docs/PLUGINS.md
-- WanGP API guide: https://github.com/deepbeepmeep/WanGP/blob/main/docs/API.md
-- WanGP Showrunner guide: https://github.com/deepbeepmeep/WanGP/blob/main/docs/SHOWRUNNER.md
-
-This is an independent integration and is not an official WanGP project or endorsement.
+- Keep the GitHub repository private.
+- Configure authentication before exposing the Netlify site.
+- Never put Google OAuth client secrets, refresh tokens, WanGP worker tokens or other secrets in frontend code or Vite environment variables prefixed with `VITE_`.
+- Do not expose a public Gradio share URL as the production worker endpoint.
+- Use a private authenticated worker bridge for all generation requests.
