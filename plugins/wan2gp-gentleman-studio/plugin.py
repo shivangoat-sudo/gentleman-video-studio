@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from datetime import datetime
 import copy
 import json
 import math
@@ -159,7 +160,7 @@ def make_final_video(clips: list[str], script: str, language: str, duration: int
         ])
         subtitles = temp_dir / "captions.srt"
         make_srt(script, duration, subtitles)
-        final_path = output_dir / "gentleman_studio_latest.mp4"
+        final_path = output_dir / f"gentleman_studio_{datetime.now().strftime('%Y%m%d_%H%M%S')}.mp4"
         if voiceover:
             if edge_tts is None:
                 raise RuntimeError("Edge TTS is missing. Install the plugin requirements or disable voiceover.")
@@ -263,6 +264,10 @@ class GentlemanStudioPlugin(WAN2GPPlugin):
                          quality, model_id, add_voice, progress=gr.Progress(track_tqdm=False)):
                 try:
                     full_script = read_script(script, upload)
+                    estimated_wpm = len(full_script.split()) * 60 / max(1, float(seconds))
+                    if voiceover and estimated_wpm > 185:
+                        minimum_seconds = math.ceil(len(full_script.split()) * 60 / 185)
+                        raise ValueError(f"This script is too long for {int(seconds)} seconds at a natural speaking pace. Use at least {minimum_seconds} seconds or shorten the script.")
                     aspect = ASPECTS[aspect_name]
                     size = RESOLUTIONS[aspect][quality]
                     scenes = split_into_scenes(full_script, int(seconds))
@@ -278,6 +283,7 @@ class GentlemanStudioPlugin(WAN2GPPlugin):
                             "Photorealistic live-action cinematic footage for a premium men's self-improvement short. "
                             f"Visual direction: {visual_style}. "
                             f"Show this moment naturally: {scene}. "
+                            "Keep the subject anonymous and faceless: frame from behind, over the shoulder, or crop above the mouth; never show a recognizable face. "
                             "Use realistic human proportions, believable gestures, natural skin and fabric texture, "
                             "physically plausible motion, controlled camera movement and coherent lighting. "
                             "One continuous cinematic shot. No visible words, captions, logos, watermarks, UI or collage."
